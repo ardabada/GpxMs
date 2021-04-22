@@ -1,0 +1,25 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "GpxMs.VisualizationService.Presentation.Protos";
+
+service VisualizationService {
+	rpc GetPathImage(RouteVisualizationRequestMessage) returns (RouteVisualizationResponseMesage);
+}
+
+message RouteVisualizationRequestMessage {
+	repeated CoordMessage Coords = 1;
+	string PathColor = 2;
+	int32 PathWidth = 3;
+	int32 ImageWidth = 4;
+	int32 ImageHeight = 5;
+}
+
+message RouteVisualizationResponseMesage {
+	google.protobuf.BytesValue Image = 1;
+}
+
+message CoordMessage {
+	double Lat = 1;
+	double Long = 2;
+}

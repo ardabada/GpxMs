@@ -1,0 +1,27 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "GpxMs.GeoService.Presentation.Protos";
+
+service GeoService {
+	rpc ExtendRoute(ExtendRouteRequestMessage) returns (ExtendRouteResponseMessage);
+}
+
+message ExtendRouteRequestMessage {
+	repeated TrackExtentionRequestMessage Tracks = 1;
+}
+message ExtendRouteResponseMessage {
+	repeated TrackMessage Tracks = 1;
+}
+message TrackExtentionRequestMessage {
+	TrackMessage Track = 1;
+	double Step = 2;
+}
+
+message TrackMessage {
+	repeated CoordMessage Coords = 1;
+}
+
+message CoordMessage {
+	double Lat = 1;
+	double Long = 2;
+}
