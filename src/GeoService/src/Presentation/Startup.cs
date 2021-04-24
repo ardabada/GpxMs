@@ -1,5 +1,4 @@
 using GpxMs.GeoService.Application.Handlers;
-using GpxMs.GeoService.Presentation.Converters;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,8 +17,6 @@ namespace GpxMs.GeoService.Presentation
             services.AddGrpc();
             services.AddGrpcReflection();
             services.AddMediatR(typeof(ExtendRouteHandler).Assembly);
-
-            services.AddTransient<IGeoServiceConverter, GeoServiceConverter>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

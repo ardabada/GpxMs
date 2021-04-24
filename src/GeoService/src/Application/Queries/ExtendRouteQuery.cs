@@ -1,15 +1,18 @@
 ﻿using GpxMs.GeoService.Application.Models;
 using MediatR;
+using System.Collections.Generic;
 
 namespace GpxMs.GeoService.Application.Queries
 {
-    public class ExtendRouteQuery : IRequest<ExtendRouteResponse>
+    public class ExtendRouteQuery : IRequest<List<Track>>
     {
-        public ExtendRouteRequest Request { get; private set; }
+        public List<Track> Tracks { get; }
+        public double Step { get; }
 
-        public ExtendRouteQuery(ExtendRouteRequest request)
+        public ExtendRouteQuery(List<Track> tracks, double step)
         {
-            this.Request = request;
+            Tracks = tracks;
+            Step = step;
         }
     }
 }

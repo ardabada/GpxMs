@@ -17,7 +17,6 @@ namespace GpxMs.ApiGate.Infrastructure.gRPC.GeoService
 
     public class GeoServiceClient : GrpcClientBase, IGeoServiceClient
     {
-        private readonly IGrpcChannelPool grpcChannelPool;
         private readonly ILogger<GeoServiceClient> logger;
         private readonly Protos.GeoService.GeoServiceClient client;
 
@@ -25,7 +24,6 @@ namespace GpxMs.ApiGate.Infrastructure.gRPC.GeoService
             ILogger<GeoServiceClient> logger,
             IOptionsMonitor<GrpcServicesSettings> settings)
         {
-            this.grpcChannelPool = grpcChannelPool;
             this.logger = logger;
 
             client = new Protos.GeoService.GeoServiceClient(grpcChannelPool.GeoServiceChannel);

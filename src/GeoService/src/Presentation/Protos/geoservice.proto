@@ -1,27 +1,44 @@
 ﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "GpxMs.GeoService.Presentation.Protos";
 
 service GeoService {
 	rpc ExtendRoute(ExtendRouteRequestMessage) returns (ExtendRouteResponseMessage);
+	rpc ProcessTime(ProcessTimeRequestMessage) returns (ProcessTimeResponseMessage);
 }
 
 message ExtendRouteRequestMessage {
-	repeated TrackExtentionRequestMessage Tracks = 1;
+	repeated TrackMessage Tracks = 1;
+	double Step = 2;
 }
 message ExtendRouteResponseMessage {
 	repeated TrackMessage Tracks = 1;
 }
-message TrackExtentionRequestMessage {
-	TrackMessage Track = 1;
-	double Step = 2;
+
+message CoordMessage {
+	double Lat = 1;
+	double Long = 2;
 }
 
 message TrackMessage {
 	repeated CoordMessage Coords = 1;
 }
 
-message CoordMessage {
+message ProcessTimeRequestMessage {
+	repeated TrackMessage Tracks = 1;
+	google.protobuf.Timestamp StartTime = 2;
+	repeated google.protobuf.Timestamp TrackSplits = 3;
+}
+message ProcessTimeResponseMessage {
+	repeated TimedTrackMessage Tracks = 1;
+}
+
+message TimedCoordMessage {
 	double Lat = 1;
 	double Long = 2;
+	google.protobuf.Timestamp Time = 3;
+}
+message TimedTrackMessage {
+	repeated TimedCoordMessage Coords = 1;
 }
