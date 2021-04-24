@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>GpxMs.GeoService.Infrastructure</AssemblyName>
+    <RootNamespace>GpxMs.GeoService.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.37.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="gRPC\VisualizationService\Protos\*.proto" />
+    <Protobuf Include="gRPC\GpxRegistryService\Protos\*.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="gRPC\GpxRegistryService\Protos\gpxregistry.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+  
+</Project>

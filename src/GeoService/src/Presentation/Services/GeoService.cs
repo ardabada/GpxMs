@@ -1,4 +1,4 @@
-﻿using GpxMs.GeoService.Application.Models;
+﻿using GpxMs.GeoService.Domain.Models;
 using GpxMs.GeoService.Application.Queries;
 using GpxMs.GeoService.Presentation.Protos;
 using Grpc.Core;

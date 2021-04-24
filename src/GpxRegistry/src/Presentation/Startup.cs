@@ -1,7 +1,5 @@
-using GpxMs.GeoService.Application.Handlers;
-using GpxMs.GeoService.Infrastructure.gRPC;
-using GpxMs.GeoService.Infrastructure.gRPC.GpxRegistryService;
-using GpxMs.GeoService.Infrastructure.gRPC.VisualizationService;
+using Application;
+using Application.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace GpxMs.GeoService.Presentation
+namespace GpxMs.GpxRegistry.Presentation
 {
     public class Startup
     {
@@ -21,20 +19,16 @@ namespace GpxMs.GeoService.Presentation
             Configuration = configuration;
         }
 
-
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddGrpc();
             services.AddGrpcReflection();
-            services.AddMediatR(typeof(ExtendRouteHandler).Assembly);
 
-            services.Configure<GrpcServicesSettings>(Configuration.GetSection(nameof(GrpcServicesSettings)));
+            services.Configure<DataPersistOptions>(Configuration.GetSection(nameof(DataPersistOptions)));
 
-            services.AddSingleton<IGrpcChannelPool, GrpcChannelPool>();
-            services.AddSingleton<IVisualizationServiceClient, VisualizationServiceClient>();
-            services.AddSingleton<IGpxRegistryServiceClient, GpxRegistryServiceClient>();
+            services.AddMediatR(typeof(PersistDataCommand).Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,8 +43,8 @@ namespace GpxMs.GeoService.Presentation
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<Services.GeoService>();
-                
+                endpoints.MapGrpcService<Services.GpxRegistryService>();
+
                 if (env.IsDevelopment())
                 {
                     endpoints.MapGrpcReflectionService();
@@ -58,7 +52,7 @@ namespace GpxMs.GeoService.Presentation
 
                 endpoints.MapGet("/", async context =>
                 {
-                    await context.Response.WriteAsync("Geo Service is running.");
+                    await context.Response.WriteAsync("GPX Registry service is running!");
                 });
             });
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GpxMs.GeoService.Application.Models
+namespace GpxMs.GeoService.Domain.Models
 {
     public class Coord
     {

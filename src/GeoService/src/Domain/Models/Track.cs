@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GpxMs.GeoService.Application.Models
+namespace GpxMs.GeoService.Domain.Models
 {
     public class TrackBase<T> : List<T> where T : Coord
     {

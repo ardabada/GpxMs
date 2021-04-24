@@ -1,0 +1,18 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "GpxMs.GeoService.Infrastructure.gRPC.GpxRegistryService.Protos";
+
+service GpxRegistryService {
+	rpc PersistData(PersistDataRequestMessage) returns (PersistDataResponseMessage);
+}
+
+message PersistDataRequestMessage {
+	google.protobuf.BytesValue Data = 1;
+	string NamePrefix = 2;
+	string Type = 3;
+}
+
+message PersistDataResponseMessage {
+	bool Saved = 1;
+}

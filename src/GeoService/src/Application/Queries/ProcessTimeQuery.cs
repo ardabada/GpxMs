@@ -1,4 +1,4 @@
-﻿using GpxMs.GeoService.Application.Models;
+﻿using GpxMs.GeoService.Domain.Models;
 using MediatR;
 using System;
 using System.Collections.Generic;
