@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
+using GpxMs.GeoService.Application.Commands;
 
 namespace GpxMs.GeoService.Presentation.Services
 {
@@ -41,6 +42,13 @@ namespace GpxMs.GeoService.Presentation.Services
             return result;
         }
 
+        public override async Task<SaveResponseMessage> SaveTimedTrack(SaveRequestMessage request, ServerCallContext context)
+        {
+            var mediatorRequest = new SaveTimedTrackCommand(request.Tracks.Select(x => convertTimedTrack(x)).ToList());
+            var mediatorResponse = await mediator.Send(mediatorRequest);
+            return new SaveResponseMessage() { Id = mediatorResponse };
+        }
+
 
         private CoordMessage convertCoord(Coord coord)
         {
@@ -59,6 +67,10 @@ namespace GpxMs.GeoService.Presentation.Services
                 Time = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(coord.Time)
             };
         }
+        private TimedCoord convertTimedCoord(TimedCoordMessage coord)
+        {
+            return new TimedCoord(coord.Lat, coord.Long, coord.Time.ToDateTime());
+        }
         private Track convertTrack(TrackMessage message)
         {
             return new Track(message.Coords.Select(x => convertCoord(x)).ToList());
@@ -74,6 +86,10 @@ namespace GpxMs.GeoService.Presentation.Services
             var message = new TimedTrackMessage();
             message.Coords.AddRange(track.ConvertAll(x => convertTimedCoord(x)));
             return message;
-        } 
+        }
+        private TimedTrack convertTimedTrack(TimedTrackMessage message)
+        {
+            return new TimedTrack(message.Coords.Select(x => convertTimedCoord(x)).ToList());
+        }
     }
 }

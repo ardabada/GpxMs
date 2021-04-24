@@ -6,7 +6,7 @@ option csharp_namespace = "GpxMs.GeoService.Presentation.Protos";
 service GeoService {
 	rpc ExtendRoute(ExtendRouteRequestMessage) returns (ExtendRouteResponseMessage);
 	rpc ProcessTime(ProcessTimeRequestMessage) returns (ProcessTimeResponseMessage);
-	//rpc SaveAndAnalyze() returns ();
+	rpc SaveTimedTrack(SaveRequestMessage) returns (SaveResponseMessage);
 }
 
 message ExtendRouteRequestMessage {
@@ -42,4 +42,11 @@ message TimedCoordMessage {
 }
 message TimedTrackMessage {
 	repeated TimedCoordMessage Coords = 1;
+}
+
+message SaveRequestMessage {
+	repeated TimedTrackMessage Tracks = 1;
+}
+message SaveResponseMessage {
+	string Id = 1;
 }

@@ -2,8 +2,10 @@
 
 namespace GpxMs.ApiGate.Domain.Models
 {
-    public class Track
+    public class TrackBase<T> where T : Coord
     {
-        public List<Coord> Coords { get; set; }
+        public List<T> Coords { get; set; }
     }
+    public class Track : TrackBase<Coord> { }
+    public class TimedTrack : TrackBase<TimedCoord> { }
 }

@@ -1,4 +1,4 @@
-﻿using GpxMs.ApiGate.Application.Queries;
+﻿using GpxMs.ApiGate.Application.Commands;
 using GpxMs.ApiGate.Domain.Models.Requests;
 using GpxMs.ApiGate.Domain.Models.Responses;
 using MediatR;
@@ -19,13 +19,14 @@ namespace GpxMs.ApiGate.Presentation.Controllers
             this.mediator = mediator;
         }
 
-        [HttpPost("routes/extend")]
-        public async Task<ExtendRouteResponse> ExtendCoordinates([FromQuery] string output, [FromBody] ExtendRouteRequest request)
+        [HttpPost("build")]
+        public async Task<BuildAndAnalyzeResponse> BuildAndAnalyze([FromBody] BuildAndAnalyzeRequest request)
         {
             logger.LogInformation("Requested coordinates extension");
 
-            var mediatorRequest = new CoordExtensionQuery(request);
+            var mediatorRequest = new BuildAndAnalyzeCommand(request);
             var result = await mediator.Send(mediatorRequest);
+
             return result;
         }
     }

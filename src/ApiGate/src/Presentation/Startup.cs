@@ -37,7 +37,7 @@ namespace GpxMs.ApiGate.Presentation
             services.AddSingleton<IGrpcChannelPool, GrpcChannelPool>();
             services.AddSingleton<IGeoServiceClient, GeoServiceClient>();
 
-            services.AddMediatR(typeof(CoordExtensionHandler).Assembly);
+            services.AddMediatR(typeof(BuildAndAnalyzeHandler).Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,9 +1,9 @@
-﻿using GpxMs.ApiGate.Domain.Models;
-using GpxMs.ApiGate.Domain.Models.Requests;
-using GpxMs.ApiGate.Domain.Models.Responses;
+﻿using Google.Protobuf.WellKnownTypes;
+using GpxMs.ApiGate.Domain.Models;
 using GpxMs.ApiGate.Infrastructure.gRPC.GeoService.Protos;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +12,9 @@ namespace GpxMs.ApiGate.Infrastructure.gRPC.GeoService
 {
     public interface IGeoServiceClient
     {
-        Task<ExtendRouteResponse> ExtendRouteAsync(ExtendRouteRequest request, CancellationToken cancellationToken = default);
+        Task<List<Track>> ExtendRouteAsync(List<Track> tracks, double step, CancellationToken cancellationToken = default);
+        Task<List<TimedTrack>> ProcessTime(List<Track> tracks, DateTime start, List<DateTime> splits, CancellationToken cancellationToken = default);
+        Task<string> SaveTimedTrack(List<TimedTrack> tracks, CancellationToken cancellationToken = default);
     }
 
     public class GeoServiceClient : GrpcClientBase, IGeoServiceClient
@@ -28,102 +30,73 @@ namespace GpxMs.ApiGate.Infrastructure.gRPC.GeoService
             client = new Protos.GeoService.GeoServiceClient(grpcChannelPool.GeoServiceChannel);
         }
 
-        public async Task<ExtendRouteResponse> ExtendRouteAsync(ExtendRouteRequest request, CancellationToken cancellationToken = default)
+        public async Task<List<Track>> ExtendRouteAsync(List<Track> tracks, double step, CancellationToken cancellationToken = default)
         {
-            var result = await client.ExtendRouteAsync(ConvertExtendRouteRequest(request), cancellationToken: cancellationToken);
-            return ConvertExtendRouteResponse(result);
+            var message = new ExtendRouteRequestMessage();
+            message.Step = step;
+            message.Tracks.AddRange(tracks.Select(x => convertTrack(x)));
+            var result = await client.ExtendRouteAsync(message, cancellationToken: cancellationToken);
+            return result.Tracks.Select(x => convertTrack(x)).ToList();
         }
 
-        #region Mappings
-
-        private Coord ConvertCoord(CoordMessage message)
+        public async Task<List<TimedTrack>> ProcessTime(List<Track> tracks, DateTime start, List<DateTime> splits, CancellationToken cancellationToken = default)
         {
-            return new Coord { Lat = message.Lat, Long = message.Long };
+            var message = new ProcessTimeRequestMessage();
+            message.StartTime = Timestamp.FromDateTime(start);
+            message.TrackSplits.AddRange(splits.Select(x => Timestamp.FromDateTime(x)));
+            message.Tracks.AddRange(tracks.Select(x => convertTrack(x)));
+            var result = await client.ProcessTimeAsync(message, cancellationToken: cancellationToken);
+            return result.Tracks.Select(x => convertTrack(x)).ToList();
         }
 
-        private CoordMessage ConvertCoord(Coord model)
+        public async Task<string> SaveTimedTrack(List<TimedTrack> tracks, CancellationToken cancellationToken = default)
         {
-            return new CoordMessage()
+            var message = new SaveRequestMessage();
+            message.Tracks.AddRange(tracks.Select(x => convertTrack(x)));
+            var result = await client.SaveTimedTrackAsync(message, cancellationToken: cancellationToken);
+            return result.Id;
+        }
+
+        private CoordMessage convertCoord(Coord coord)
+        {
+            return new CoordMessage() { Lat = coord.Lat, Long = coord.Long };
+        }
+        private Coord convertCoord(CoordMessage message)
+        {
+            return new Coord(message.Lat, message.Long);
+        }
+        private TimedCoord convertCoord(TimedCoordMessage message)
+        {
+            return new TimedCoord(message.Lat, message.Long, message.Time.ToDateTime());
+        }
+        private TimedCoordMessage convertCoord(TimedCoord message)
+        {
+            return new TimedCoordMessage()
             {
-                Lat = model?.Lat ?? 0,
-                Long = model?.Long ?? 0
+                Lat = message.Lat,
+                Long = message.Long,
+                Time = Timestamp.FromDateTime(message.Time)
             };
         }
-
-        private ExtendRouteRequest ConvertExtendRouteRequest(ExtendRouteRequestMessage message)
+        private TrackMessage convertTrack(Track track)
         {
-            return new ExtendRouteRequest()
-            {
-                Tracks = message.Tracks.Select(x => ConvertTrackExtentionRequest(x)).ToList()
-            };
+            var message = new TrackMessage();
+            message.Coords.AddRange(track.Coords.Select(x => convertCoord(x)));
+            return message;
         }
-
-        private ExtendRouteRequestMessage ConvertExtendRouteRequest(ExtendRouteRequest model)
+        private Track convertTrack(TrackMessage message)
         {
-            var result = new ExtendRouteRequestMessage();
-            result.Tracks.AddRange(model.Tracks.Select(x => ConvertTrackExtentionRequest(x)));
-            return result;
+            return new Track() { Coords = message.Coords.Select(x => convertCoord(x)).ToList() };
         }
-
-        private ExtendRouteResponse ConvertExtendRouteResponse(ExtendRouteResponseMessage message)
+        private TimedTrack convertTrack(TimedTrackMessage message)
         {
-            return new ExtendRouteResponse()
-            {
-                Tracks = message.Tracks.Select(x => ConvertTrack(x)).ToList()
-            };
+            return new TimedTrack() { Coords = message.Coords.Select(x => convertCoord(x)).ToList() };
         }
-        private ExtendRouteResponseMessage ConvertExtendRouteResponse(ExtendRouteResponse model)
+        private TimedTrackMessage convertTrack(TimedTrack track)
         {
-            var result = new ExtendRouteResponseMessage();
-            result.Tracks.AddRange(model.Tracks.Select(x => ConvertTrack(x)));
-            return result;
-        }
-
-        private Track ConvertTrack(TrackMessage message)
-        {
-            return new Track { Coords = message.Coords.Select(x => ConvertCoord(x)).ToList() };
-        }
-
-        private TrackMessage ConvertTrack(Track model)
-        {
-            var result = new TrackMessage();
-            result.Coords.AddRange(model.Coords.Select(x => ConvertCoord(x)));
-            return result;
-        }
-
-        private TrackExtentionRequest ConvertTrackExtentionRequest(TrackExtentionRequestMessage message)
-        {
-            return new TrackExtentionRequest()
-            {
-                Step = message.Step,
-                Track = ConvertTrack(message.Track)
-            };
-        }
-
-        private TrackExtentionRequestMessage ConvertTrackExtentionRequest(TrackExtentionRequest model)
-        {
-            return new TrackExtentionRequestMessage()
-            {
-                Track = ConvertTrack(model.Track),
-                Step = model.Step
-            };
-        }
-
-        private ExtendRouteResponse ConvertTrackResponse(ExtendRouteResponseMessage message)
-        {
-            return new ExtendRouteResponse()
-            {
-                Tracks = message.Tracks.Select(x => ConvertTrack(x)).ToList()
-            };
-        }
-
-        private ExtendRouteResponseMessage ConvertTrackResponse(ExtendRouteResponse model)
-        {
-            var result = new ExtendRouteResponseMessage();
-            result.Tracks.AddRange(model.Tracks.Select(x => ConvertTrack(x)));
-            return result;
+            var message = new TimedTrackMessage();
+            message.Coords.AddRange(track.Coords.Select(x => convertCoord(x)));
+            return message;
         }
     }
-
-    #endregion
 }
