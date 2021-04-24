@@ -20,8 +20,9 @@ namespace GpxMs.ApiGate.Application.Handlers
         {
             var extendedTracks = await geoServiceClient.ExtendRouteAsync(request.Request.Tracks, 0.0001, cancellationToken);
             var timedTracks = await geoServiceClient.ProcessTime(extendedTracks, request.Request.Start, request.Request.Splits, cancellationToken);
+            var analyzeResult = await geoServiceClient.AnalyzeTrack(timedTracks, cancellationToken);
             var savedId = await geoServiceClient.SaveTimedTrack(timedTracks, cancellationToken);
-            return new BuildAndAnalyzeResponse() { Id = savedId };
+            return new BuildAndAnalyzeResponse() { Id = savedId, Speed = analyzeResult };
         }
     }
 }

@@ -2,6 +2,7 @@ using GpxMs.GeoService.Application.Handlers;
 using GpxMs.GeoService.Infrastructure.gRPC;
 using GpxMs.GeoService.Infrastructure.gRPC.GpxRegistryService;
 using GpxMs.GeoService.Infrastructure.gRPC.VisualizationService;
+using GpxMs.GeoService.Infrastructure.Services;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -35,6 +36,7 @@ namespace GpxMs.GeoService.Presentation
             services.AddSingleton<IGrpcChannelPool, GrpcChannelPool>();
             services.AddSingleton<IVisualizationServiceClient, VisualizationServiceClient>();
             services.AddSingleton<IGpxRegistryServiceClient, GpxRegistryServiceClient>();
+            services.AddTransient<IGpxService, GpxService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

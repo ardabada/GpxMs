@@ -35,6 +35,8 @@ namespace GpxMs.VisualizationService.Application.Handlers
 
             string url = $"https://tc.mobile.yandex.net/get-map/1.x/?lang=ru&lg=0&scale=1&pt={ startPoint },comma_solid_red~{ lastPoint },comma_solid_blue&l=map&cr=0&pl=c:{ _request.PathColor },w:{ _request.PathWidth },{coords_str}&size={_request.ImageWidth},{_request.ImageHeight}";
 
+            logger.LogInformation("Getting image " + url);
+
             byte[] imageBytes = null;
             try
             {
@@ -47,7 +49,7 @@ namespace GpxMs.VisualizationService.Application.Handlers
 
         private IEnumerable<Coord> FilterCoords(List<Coord> source, int maxNumber)
         {
-            var indexes = LinspaceIndexes(0, source.Count, maxNumber);
+            var indexes = LinspaceIndexes(0, source.Count-1, maxNumber);
             for (int i = 0; i < indexes.Length; i++)
             {
                 yield return source[indexes[i]];

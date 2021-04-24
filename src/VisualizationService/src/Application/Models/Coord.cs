@@ -13,7 +13,7 @@
 
         public override string ToString()
         {
-            return Lat.ToString(System.Globalization.CultureInfo.InvariantCulture) + "," + Long.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return Long.ToString(System.Globalization.CultureInfo.InvariantCulture) + "," + Lat.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 }

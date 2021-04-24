@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using GpxMs.ApiGate.Domain.Models;
+using GpxMs.ApiGate.Domain.Models.Responses;
 using GpxMs.ApiGate.Infrastructure.gRPC.GeoService.Protos;
 using Microsoft.Extensions.Logging;
 using System;
@@ -15,6 +16,7 @@ namespace GpxMs.ApiGate.Infrastructure.gRPC.GeoService
         Task<List<Track>> ExtendRouteAsync(List<Track> tracks, double step, CancellationToken cancellationToken = default);
         Task<List<TimedTrack>> ProcessTime(List<Track> tracks, DateTime start, List<DateTime> splits, CancellationToken cancellationToken = default);
         Task<string> SaveTimedTrack(List<TimedTrack> tracks, CancellationToken cancellationToken = default);
+        Task<TrackSpeedAnalyzeResult> AnalyzeTrack(List<TimedTrack> tracks, CancellationToken cancellationToken = default);
     }
 
     public class GeoServiceClient : GrpcClientBase, IGeoServiceClient
@@ -55,6 +57,18 @@ namespace GpxMs.ApiGate.Infrastructure.gRPC.GeoService
             message.Tracks.AddRange(tracks.Select(x => convertTrack(x)));
             var result = await client.SaveTimedTrackAsync(message, cancellationToken: cancellationToken);
             return result.Id;
+        }
+
+        public async Task<TrackSpeedAnalyzeResult> AnalyzeTrack(List<TimedTrack> tracks, CancellationToken cancellationToken = default)
+        {
+            var message = new AnalyzeTrackRequestMessage();
+            message.Tracks.AddRange(tracks.Select(x => convertTrack(x)));
+            var result = await client.AnalyzeTrackAsync(message, cancellationToken: cancellationToken);
+            return new TrackSpeedAnalyzeResult()
+            {
+                Average = result.AverageSpeed,
+                Splits = result.AverateSpeedSplits.ToList()
+            };
         }
 
         private CoordMessage convertCoord(Coord coord)

@@ -49,6 +49,17 @@ namespace GpxMs.GeoService.Presentation.Services
             return new SaveResponseMessage() { Id = mediatorResponse };
         }
 
+        public override async Task<AnalyzeTrackResponseMessage> AnalyzeTrack(AnalyzeTrackRequestMessage request, ServerCallContext context)
+        {
+            var mediatorRequest = new AnalyzeTrackQuery(request.Tracks.Select(x => convertTimedTrack(x)).ToList());
+            var mediatorResponse = await mediator.Send(mediatorRequest);
+
+            var result = new AnalyzeTrackResponseMessage();
+            result.AverageSpeed = mediatorResponse.AverageSpeed;
+            result.AverateSpeedSplits.AddRange(mediatorResponse.AverageSpeedSplits);
+            return result;
+        }
+
 
         private CoordMessage convertCoord(Coord coord)
         {
